@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        padding: 1.2rem;
+    }
+</style>
+</head>
+
+
+<body>
+
+
+    <div style="direction: ltr">
+
+        <table>
+            <thead>
+                <th>#</th>
+                <th>Plate</th>
+                <th>View</th>
+                <th>Detect</th>
+            </thead>
+
+            <tr th:each="name, iter : ${names}">
+                <td th:text="${iter.index+1}"></td>
+                <td th:text="${#strings.replace(name , '.jpg' , '')}"></td>
+                <td >
+                    <a th:href="${'assets/images/' + name }" target="_blank"> view</a>
+                </td>
+                <td >
+                    <a th:href="${'detectByAlpr/' + name }" target="_blank"> Detect</a>
+                </td>
+            </tr>
+
+
+        </table>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
