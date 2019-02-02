@@ -21,7 +21,7 @@ import java.util.List;
 @Controller
 public class PlateController {
 
-    @RequestMapping(value = "/plateList")
+    @RequestMapping(value = {"/plateList" , "/" , "index" })
     public String plateList(Model model){
 
 
