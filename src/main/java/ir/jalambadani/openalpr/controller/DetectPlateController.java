@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 public class DetectPlateController {
 
 
-    private static final String SERVER_IP = "http://151.238.96.103:4238/";
+    private static final String SERVER_IP = "http://198.143.180.238:4238";
 
     @RequestMapping(value = "/detectByAlpr/{fileName}")
     public String detectResponse(@PathVariable(name = "fileName") String fileName) throws IOException {
@@ -46,8 +46,10 @@ public class DetectPlateController {
 
         if(opF.isPresent()){
 
+            String pathImage = SERVER_IP + "/assets/images/" + fileName;
+            System.out.println("pathImage: " + pathImage);
             Call<AlprResponse> call = AlprRetrofitFactory.getInstance().getAlprEndPoint().recognizeUrl(
-                    SERVER_IP + "images/" + fileName,
+                    pathImage,
                     "sk_dd8db7eda4946b1815948b6c",
                     "eu",
                     0,
@@ -63,13 +65,15 @@ public class DetectPlateController {
 
                 List<Result> result = responseBody.body().getResults();
                 if(result != null && !result.isEmpty()){
-                    return result.get(0).getPlate();
+                    return
+                            "real label: " + fileName.replaceAll("\\*" , "").replaceAll("\\.jpg" , "") + "\n" +
+                            "detected plate: " + result.get(0).getPlate() + "\n" ;
                 }else{
                     return "plate not detect by alpr";
                 }
 
             }else{
-                return "error in connect to alpr";
+                return "error in connect to alpr, http request code: " + responseBody.code();
             }
 
 
