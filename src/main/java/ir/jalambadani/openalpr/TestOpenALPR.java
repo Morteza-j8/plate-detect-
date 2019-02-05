@@ -1,5 +1,8 @@
 package ir.jalambadani.openalpr;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import ir.jalambadani.openalpr.alpr.response.AlprResponse;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,14 +25,11 @@ public class TestOpenALPR {
 
     private static final String secret_key = "sk_dd8db7eda4946b1815948b6c";
 
-    public static String alpr(byte[] data)
-    {
-        try
-        {
+    public static AlprResponse alpr(byte[] data) {
 
 
 
-
+        try {
             // Encode file bytes to base64
             byte[] encoded = Base64.getEncoder().encode(data);
 
@@ -59,7 +59,8 @@ public class TestOpenALPR {
                 }
                 in.close();
 
-                return json_content;
+                return
+                        new ObjectMapper(  ).readValue( json_content , AlprResponse.class);
             }
             else
             {
@@ -70,13 +71,14 @@ public class TestOpenALPR {
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
-            return "Bad URL";
+            System.out.println("Bad URL");
         }
         catch (IOException e) {
             e.printStackTrace();
-            return "Failed to open connection";
+            System.out.println("Failed to open connection");
         }
-        return "error occurred";
+        System.out.println("error occurred");
 
+        return null;
     }
 }

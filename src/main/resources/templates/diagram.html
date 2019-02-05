@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        padding: 1.2rem;
+    }
+</style>
+</head>
+
+
+<body>
+
+
+    <div style="direction: ltr">
+
+
+        <table>
+            <thead>
+                <th>#</th>
+                <th>File Name</th>
+                <th>Real Label</th>
+                <th>PredicateFirst Time</th>
+                <th>Predicate Second Time</th>
+                <th>Best Predicate</th>
+                <th>Error Parameter</th>
+                <th>Answer Is True</th>
+            </thead>
+
+            <tr th:each="rs, iter : ${result}">
+                <td th:text="${iter.index+1}"></td>
+                <td th:text="${rs.fileName}"></td>
+                <td th:text="${rs.label}"></td>
+                <td th:text="${rs.predicateFirstTime}"></td>
+                <td th:text="${rs.predicateSecondTime}"></td>
+
+                <td th:if="${rs.errorPredicateFirst <= rs.errorPredicateSecond}" th:text="${rs.predicateFirstTime}"></td>
+                <td th:if="${rs.errorPredicateFirst > rs.errorPredicateSecond}" th:text="${rs.predicateSecondTime}"></td>
+
+                <td th:if="${rs.errorPredicateFirst <= rs.errorPredicateSecond}" th:text="${rs.errorPredicateFirst}"></td>
+                <td th:if="${rs.errorPredicateFirst > rs.errorPredicateSecond}" th:text="${rs.errorPredicateSecond}"></td>
+
+                <td th:if="${rs.errorPredicateFirst == 0 || rs.errorPredicateSecond == 0}" >YES</td>
+                <td th:if="${rs.errorPredicateFirst != 0 && rs.errorPredicateSecond != 0}" >NO</td>
+
+
+            </tr>
+
+
+        </table>
+
+
+        <table>
+            <thead>
+            <th>Success</th>
+            <th>Failure</th>
+            <th>ALL</th>
+            </thead>
+
+            <tr >
+                <td th:text="${success}"></td>
+                <td th:text="${failed}"></td>
+                <td th:text="${success + failed}"></td>
+
+            </tr>
+
+
+        </table>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

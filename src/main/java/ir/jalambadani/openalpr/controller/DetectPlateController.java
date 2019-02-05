@@ -1,17 +1,16 @@
 package ir.jalambadani.openalpr.controller;
 
-import ir.jalambadani.openalpr.alpr.AlprRetrofitFactory;
+import ir.jalambadani.openalpr.TestOpenALPR;
 import ir.jalambadani.openalpr.alpr.response.AlprResponse;
-import ir.jalambadani.openalpr.alpr.response.Result;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import retrofit2.Call;
-import retrofit2.Response;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -27,10 +26,10 @@ import java.util.stream.Stream;
 
 @RestController
 public class DetectPlateController {
-
-
-    private static final String SERVER_IP = "http://198.143.180.238:4238";
-
+    
+    
+    
+    
     @RequestMapping(value = "/detectByAlpr/{fileName}")
     public String detectResponse(@PathVariable(name = "fileName") String fileName) throws IOException {
 
@@ -42,49 +41,81 @@ public class DetectPlateController {
             return "file not found :D";
         }
 
-        Optional < File > opF = Stream.of( files ).filter( e -> e.getName().equalsIgnoreCase( fileName ) ).findFirst();
+        Optional < File > opF =
+                Stream.of(
+                        files
+                ).filter(
+                        e -> e.getName().equalsIgnoreCase( fileName )
+                ).findFirst();
 
         if(opF.isPresent()){
-
-            String pathImage = SERVER_IP + "/assets/images/" + fileName;
-            System.out.println("pathImage: " + pathImage);
-            Call<AlprResponse> call = AlprRetrofitFactory.getInstance().getAlprEndPoint().recognizeUrl(
-                    pathImage,
-                    "sk_dd8db7eda4946b1815948b6c",
-                    "eu",
-                    0,
-                    "",
-                    0,
-                    10,
-                    ""
-            );
-
-            Response<AlprResponse> responseBody = call.execute();
-
-            if(responseBody.isSuccessful()){
-
-                List<Result> result = responseBody.body().getResults();
-                if(result != null && !result.isEmpty()){
-                    return
-                            "real label: " + fileName.replaceAll("\\*" , "").replaceAll("\\.jpg" , "") + "\n" +
-                            "detected plate: " + result.get(0).getPlate() + "\n" ;
-                }else{
-                    return "plate not detect by alpr";
-                }
-
-            }else{
-                return "error in connect to alpr, http request code: " + responseBody.code();
-            }
-
-
+            PredicateResponse answer = solve( opF.get() );
+            answer.setFileName( fileName );
+            return answer.getPredicateFirstTime();
         }else{
             return "file not found :D";
         }
 
 
-
     }
 
+
+    public static int errorFunction(String real,String detected ){
+
+
+        String r = real.replaceAll( "-" , "" );
+        String d = detected.replaceAll( "-" , "" );
+
+
+        int dif = 0;
+
+        for ( int i = 0; i + 2 < r.length(); i++ ) {
+            if(i >= d.length() || d.charAt( i ) != r.charAt( i )){
+                dif++;
+            }
+        }
+
+        return dif;
+    }
+
+
+    public static PredicateResponse solve(File imageFile) throws IOException {
+
+        BufferedImage image = ImageIO.read(imageFile);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", outputStream);
+        byte [] firstByte = outputStream.toByteArray();
+
+        AlprResponse predicate = TestOpenALPR.alpr( firstByte );
+
+
+        String realLabel =
+                imageFile.getName().replaceAll( "\\.jpg" , "" ).replaceAll( "\\*" , "" ) ;
+
+        System.out.println("predicate for " + imageFile.getName() + "start...");
+        PredicateResponse response = new PredicateResponse();
+        response.setFileName( imageFile.getName() );
+        response.setLabel( realLabel );
+
+        if(predicate != null && predicate.getResults() != null){
+            if( !predicate.getResults().isEmpty()) {
+                response.setPredicateFirstTime( predicate.getResults().get( 0 ).getPlate() );
+                response.setErrorPredicateFirst( errorFunction( realLabel, predicate.getResults().get( 0 ).getPlate()) );
+            }
+
+            if( predicate.getResults().size() > 1) {
+                response.setPredicateSecondTime( predicate.getResults().get( 1 ).getPlate() );
+                response.setErrorPredicateSecond( errorFunction( realLabel, predicate.getResults().get( 1 ).getPlate()) );
+            }
+
+
+        }
+
+        System.out.println("finished predicate for \n" + imageFile.getName());
+
+        return response;
+
+    }
 
 
 }
