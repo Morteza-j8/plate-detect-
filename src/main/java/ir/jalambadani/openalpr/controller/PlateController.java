@@ -5,8 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,15 +43,16 @@ public class PlateController {
     }
 
 
-    @RequestMapping(value = {"/result/{morteza}" })
-    public String result(Model model, @PathVariable(name = "morteza") String morteza){
+    @RequestMapping(value = {"/result/{morteza}" , "/result" })
+    public String result(Model model, @PathVariable(required = false, name = "morteza") String morteza){
 
 
+        List < PredicateResponse > result ;
         if("mortezaj8".equals( morteza )){
             File file = new File(getClass().getResource("/static/assets/images").getFile());
             File[] files = file.listFiles();
 
-            List < PredicateResponse > result = Stream.of( files ).map( f -> {
+            result = Stream.of( files ).map( f -> {
                 try {
                     return DetectPlateController.solve( f );
                 } catch (IOException e) {
@@ -62,22 +62,61 @@ public class PlateController {
             } ).collect( Collectors.toList() );
 
 
-            long success = result.stream().filter( t -> t != null && (t.getErrorPredicateFirst() == 0 || t.getErrorPredicateSecond() == 0) ).count();
-            long failed  = result.stream().filter( t -> t == null || (t.getErrorPredicateFirst() != 0 && t.getErrorPredicateSecond() != 0) ).count();
+
+            writeObjectToFile( result , "history.mj8" );
 
 
-            model.addAttribute( "success" , success );
-            model.addAttribute( "failed" , failed );
-            model.addAttribute( "result" , result );
-
-
+        }else{
+            result =
+                    readObjectFromFile( "history.mj8" );
         }
+
+        long success = result.stream().filter( t -> t != null && (t.getErrorPredicateFirst() == 0 || t.getErrorPredicateSecond() == 0) ).count();
+        long failed  = result.stream().filter( t -> t == null || (t.getErrorPredicateFirst() != 0 && t.getErrorPredicateSecond() != 0) ).count();
+
+
+        model.addAttribute( "success" , success );
+        model.addAttribute( "failed" , failed );
+        model.addAttribute( "result" , result );
 
 
 
 
         return "diagram";
 
+    }
+
+
+    private void writeObjectToFile(List<PredicateResponse> serObj , String filepath) {
+
+        try {
+
+            FileOutputStream fileOut = new FileOutputStream(filepath);
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(serObj);
+            objectOut.close();
+            System.out.println("The Object  was succesfully written to a file");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private List<PredicateResponse>  readObjectFromFile(String filepath) {
+
+        List<PredicateResponse> value = new ArrayList <>(  );
+        try {
+
+            FileInputStream fileOut = new FileInputStream(filepath);
+            ObjectInputStream objectOut = new ObjectInputStream(fileOut);
+            value = (List < PredicateResponse >) objectOut.readObject();
+            objectOut.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return value;
     }
 
 

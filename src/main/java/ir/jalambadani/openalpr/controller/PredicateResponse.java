@@ -1,5 +1,7 @@
 package ir.jalambadani.openalpr.controller;
 
+import java.io.Serializable;
+
 /**
  * created by: Morteza
  * company: mobin
@@ -9,7 +11,7 @@ package ir.jalambadani.openalpr.controller;
  **/
 
 
-public class PredicateResponse {
+public class PredicateResponse implements Serializable {
 
     private String fileName;
 

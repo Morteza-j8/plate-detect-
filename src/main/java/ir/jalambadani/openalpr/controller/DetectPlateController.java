@@ -92,7 +92,7 @@ public class DetectPlateController {
         String realLabel =
                 imageFile.getName().replaceAll( "\\.jpg" , "" ).replaceAll( "\\*" , "" ) ;
 
-        System.out.println("predicate for " + imageFile.getName() + "start...");
+        System.out.println("predicate for " + imageFile.getName() + " start...");
         PredicateResponse response = new PredicateResponse();
         response.setFileName( imageFile.getName() );
         response.setLabel( realLabel );
