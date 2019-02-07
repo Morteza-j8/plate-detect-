@@ -36,27 +36,30 @@
                 <td th:text="${iter.index+1}"></td>
                 <td th:if="${rs != null}" >
                     <a
-                        th:if="${rs != null && (rs.errorPredicateFirst == 0 || rs.errorPredicateSecond == 0)}"
+                        th:if="${rs != null && (rs.errorPredicateFirst != -1 || rs.errorPredicateSecond != -1)}"
                         th:href="@{'/area/' + ${rs.fileName} }"
                         th:text="${rs.fileName}"
+                        target="_blank"
                     >
                         Visit
                     </a>
 
-                    <p th:if="${rs != null && rs.errorPredicateFirst != 0 && rs.errorPredicateSecond != 0}" th:text="${rs.fileName}"></p>
+                    <p th:if="${rs != null && rs.errorPredicateFirst == -1 && rs.errorPredicateSecond == -1}" th:text="${rs.fileName}"></p>
                 </td>
                 <td th:if="${rs != null}" th:text="${rs.label}"></td>
                 <td th:if="${rs != null}" th:text="${rs.predicateFirstTime}"></td>
                 <td th:if="${rs != null}" th:text="${rs.predicateSecondTime}"></td>
 
-                <td th:if="${rs != null && rs.errorPredicateFirst <= rs.errorPredicateSecond}" th:text="${rs.predicateFirstTime}"></td>
-                <td th:if="${rs != null && rs.errorPredicateFirst > rs.errorPredicateSecond}" th:text="${rs.predicateSecondTime}"></td>
+                <td th:if="${rs != null}" th:text="${rs.errorPredicateFirst == -1 ? rs.errorPredicateSecond : (rs.errorPredicateSecond == -1 ? rs.errorPredicateFirst : (rs.errorPredicateFirst < rs.errorPredicateSecond ? rs.errorPredicateFirst : rs.errorPredicateSecond) )  }"></td>
 
-                <td th:if="${rs != null && rs.errorPredicateFirst <= rs.errorPredicateSecond}" th:text="${rs.errorPredicateFirst}"></td>
-                <td th:if="${rs != null && rs.errorPredicateFirst > rs.errorPredicateSecond}" th:text="${rs.errorPredicateSecond}"></td>
+                <td th:if="${rs != null && rs.errorPredicateSecond == -1 && rs.errorPredicateFirst != -1 }" th:text="${rs.predicateFirstTime}"></td>
+                <td th:if="${rs != null && rs.errorPredicateSecond != -1 && rs.errorPredicateFirst == -1 }" th:text="${rs.errorPredicateSecond}"></td>
+                <td th:if="${rs != null && rs.errorPredicateSecond != -1 && rs.errorPredicateFirst != -1 }" th:text="${ rs.errorPredicateFirst < rs.errorPredicateSecond ? rs.errorPredicateFirst : rs.errorPredicateSecond}"></td>
+                <td th:if="${rs != null && rs.errorPredicateSecond == -1 && rs.errorPredicateFirst == -1 }" th:text="${ rs.errorPredicateFirst < rs.errorPredicateSecond ? rs.errorPredicateFirst : rs.errorPredicateSecond}"></td>
 
-                <td th:if="${rs != null && (rs.errorPredicateFirst == 0 || rs.errorPredicateSecond == 0)}" >YES</td>
-                <td th:if="${rs != null && rs.errorPredicateFirst != 0 && rs.errorPredicateSecond != 0}" >NO</td>
+
+                <td th:text="${rs != null && (rs.errorPredicateFirst == 0 || rs.errorPredicateSecond == 0) ? 'YES' : 'NO'}" ></td>
+
 
 
             </tr>
