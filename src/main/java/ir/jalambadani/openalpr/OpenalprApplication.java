@@ -8,8 +8,6 @@ public class OpenalprApplication {
 
     public static void main(String[] args) {
         SpringApplication.run( OpenalprApplication.class, args );
-
-
     }
 
 }

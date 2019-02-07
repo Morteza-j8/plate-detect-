@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -85,6 +86,7 @@ public class DetectPlateController {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", outputStream);
         byte [] firstByte = outputStream.toByteArray();
+        outputStream.close();
 
         AlprResponse predicate = TestOpenALPR.alpr( firstByte );
 
@@ -101,15 +103,20 @@ public class DetectPlateController {
             if( !predicate.getResults().isEmpty()) {
                 response.setPredicateFirstTime( predicate.getResults().get( 0 ).getPlate() );
                 response.setErrorPredicateFirst( errorFunction( realLabel, predicate.getResults().get( 0 ).getPlate()) );
+                response.setFirstArea(new ArrayList <>(  ));
+                response.getFirstArea().addAll( predicate.getResults().get( 0 ).getCoordinates() );
             }
 
             if( predicate.getResults().size() > 1) {
                 response.setPredicateSecondTime( predicate.getResults().get( 1 ).getPlate() );
                 response.setErrorPredicateSecond( errorFunction( realLabel, predicate.getResults().get( 1 ).getPlate()) );
+                response.setSecondArea(new ArrayList <>(  ));
+                response.getSecondArea().addAll( predicate.getResults().get( 1 ).getCoordinates() );
             }
 
 
         }
+        outputStream.close();
 
         System.out.println("finished predicate for \n" + imageFile.getName());
 

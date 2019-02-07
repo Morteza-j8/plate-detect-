@@ -3,6 +3,7 @@ package ir.jalambadani.openalpr.alpr.response;
 
 import com.fasterxml.jackson.annotation.*;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
     "x",
     "y"
 })
-public class Coordinate {
+public class Coordinate implements Serializable {
 
     @JsonProperty("x")
     private int x;
